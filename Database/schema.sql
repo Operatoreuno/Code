@@ -1,5 +1,3 @@
--- Esegui Migrate psql -U dmnc -d db -f schema.sql
-
 -- Tabella admins
 CREATE TABLE IF NOT EXISTS admins (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

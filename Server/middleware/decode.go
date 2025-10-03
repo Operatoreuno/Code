@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	apiErrors "oniplu/errors"
 	"oniplu/pkg"
 
@@ -27,11 +27,11 @@ func decodeJSON[T any](ctx *gin.Context, body *T) error {
 	contentType := ctx.Request.Header.Get("Content-Type")
 
 	if contentType != "application/json" {
-		return errors.New("content-Type deve essere application/json")
+		return fmt.Errorf("content-Type deve essere application/json")
 	}
 
 	if ctx.Request.Body == nil || ctx.Request.ContentLength == 0 {
-		return errors.New("body della richiesta mancante")
+		return fmt.Errorf("body della richiesta mancante")
 	}
 
 	if err := json.NewDecoder(ctx.Request.Body).Decode(body); err != nil {

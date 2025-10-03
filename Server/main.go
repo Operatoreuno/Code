@@ -21,7 +21,7 @@ func main() {
 	defer config.CloseDatabase(database)
 
 	// Crea istanza singleton delle queries
-	queries := db.Create(database)
+	queries := db.New(database)
 
 	// Inizializza Gin
 	router := gin.New()
