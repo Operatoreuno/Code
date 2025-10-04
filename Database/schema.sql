@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- Tabella admins
 CREATE TABLE IF NOT EXISTS admins (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -25,6 +27,6 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE INDEX IF NOT EXISTS user_email ON users(email);
-CREATE INDEX IF NOT EXISTS user_is_active_created_at ON users(is_active, created_at);
+CREATE INDEX IF NOT EXISTS user_is_active ON users(is_active);
 CREATE INDEX IF NOT EXISTS user_name_surname ON users(name, surname);
 CREATE INDEX IF NOT EXISTS user_phone ON users(phone);

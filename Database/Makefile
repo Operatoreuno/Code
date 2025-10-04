@@ -1,7 +1,16 @@
 # Database Configuration
-DB_URL = postgres://dmnc@localhost:5432/db?sslmode=disable
+DB_USER ?= dmnc
+DB_NAME ?= db
+DB_HOST ?= localhost
+DB_PORT ?= 5432
+DB_URL = postgres://$(DB_USER)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
 
-# Migration commands
+# Schema and Migration commands
+.PHONY: schema
+schema:
+	@echo "Applying schema..."
+	psql -U $(DB_USER) -d $(DB_NAME) -f schema.sql
+
 .PHONY: migrate-up
 migrate-up:
 	@echo "Running migrations..."
@@ -38,6 +47,7 @@ migrate-create:
 help:
 	@echo "Database Management Commands:"
 	@echo ""
+	@echo "  make schema              - Apply schema.sql to database"
 	@echo "  make migrate-up          - Apply all pending migrations"
 	@echo "  make migrate-down        - Rollback last migration"
 	@echo "  make migrate-down-all    - Rollback all migrations"

@@ -113,6 +113,49 @@ func (s *Session) RevokeAllSession(ctx context.Context, entityType, entityID str
 	return nil
 }
 
+// RevokeSessionByKey revoca una sessione specifica tramite la sua chiave
+func (s *Session) RevokeSessionByKey(ctx context.Context, key string) error {
+	err := s.client.Del(ctx, key).Err()
+	if err != nil {
+		return fmt.Errorf("errore nella revoca della sessione: %w", err)
+	}
+
+	return nil
+}
+
+// RollSession gestisce il limite di sessioni attive per un utente
+// Se ci sono già maxSessions o più sessioni attive, elimina quelle più vecchie
+// e crea una nuova sessione con i parametri forniti
+func (s *Session) RollSession(ctx context.Context, entityType, entityID, jti string, duration time.Duration, maxSessions int) error {
+	// Trova tutte le sessioni esistenti per l'utente
+	sessions, err := s.FindAllSessionByID(ctx, entityType, entityID)
+	if err != nil {
+		return fmt.Errorf("errore nel recupero sessioni: %w", err)
+	}
+
+	// Se ci sono già maxSessions o più sessioni, elimina quelle più vecchie
+	if len(sessions) >= maxSessions {
+		// Calcola quante sessioni eliminare
+		toDelete := len(sessions) - maxSessions + 1
+
+		// Elimina le sessioni più vecchie (le prime nell'array)
+		for i := 0; i < toDelete; i++ {
+			err = s.RevokeSessionByKey(ctx, sessions[i])
+			if err != nil {
+				return fmt.Errorf("errore nell'eliminazione sessione vecchia: %w", err)
+			}
+		}
+	}
+
+	// Crea la nuova sessione
+	err = s.CreateSession(ctx, entityType, entityID, jti, duration)
+	if err != nil {
+		return fmt.Errorf("errore nella creazione nuova sessione: %w", err)
+	}
+
+	return nil
+}
+
 // BlacklistToken aggiunge un access token alla blacklist
 func (s *Session) BlacklistToken(ctx context.Context, jti string, duration time.Duration) error {
 	key := fmt.Sprintf("blacklist:%s", jti)

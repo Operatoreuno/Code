@@ -1,4 +1,4 @@
-package auth
+package userauth
 
 import (
 	apiError "oniplu/errors"
@@ -43,6 +43,32 @@ func ValidateSignupRequest(req *SignupRequest) error {
 	if err := pkg.StringValidator(req.Surname, 1, 50, true); err != nil {
 		errorDetails = append(errorDetails, ValidationDetail{
 			Field:   "surname",
+			Message: err.Error(),
+		})
+	}
+
+	if len(errorDetails) > 0 {
+		return apiError.BadRequestError("Dati di input non validi", apiError.INVALID_REQUEST, errorDetails)
+	}
+	return nil
+}
+
+// Valida i dati di login
+func ValidateLoginRequest(req *LoginRequest) error {
+	errorDetails := make([]ValidationDetail, 0)
+
+	// Valida email (required)
+	if err := pkg.EmailValidator(req.Email, true); err != nil {
+		errorDetails = append(errorDetails, ValidationDetail{
+			Field:   "email",
+			Message: err.Error(),
+		})
+	}
+
+	// Valida password (required)
+	if err := pkg.PasswordValidator(req.Password, true); err != nil {
+		errorDetails = append(errorDetails, ValidationDetail{
+			Field:   "password",
 			Message: err.Error(),
 		})
 	}

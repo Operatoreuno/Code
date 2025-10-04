@@ -1,4 +1,4 @@
-package pkg
+package auth
 
 import (
 	"crypto/rand"
@@ -27,8 +27,8 @@ type params struct {
 	keyLength   uint32
 }
 
-// GenerateRandomSalt genera un salt casuale di lunghezza specificata
-func GenerateRandomSalt(length uint32) ([]byte, error) {
+// Genera un salt casuale di lunghezza specificata
+func generateRandomSalt(length uint32) ([]byte, error) {
 	salt := make([]byte, length)
 	_, err := rand.Read(salt)
 	if err != nil {
@@ -37,10 +37,10 @@ func GenerateRandomSalt(length uint32) ([]byte, error) {
 	return salt, nil
 }
 
-// HashPasswordWithArgon2 hasha una password usando Argon2 con salt casuale
-func HashPasswordWithArgon2(password string) (string, error) {
+// Hasha una password usando Argon2 con salt casuale
+func HashPassword(password string) (string, error) {
 	// Genera salt casuale
-	salt, err := GenerateRandomSalt(16)
+	salt, err := generateRandomSalt(16)
 	if err != nil {
 		return "", fmt.Errorf("errore nella generazione del salt: %v", err)
 	}
@@ -57,25 +57,7 @@ func HashPasswordWithArgon2(password string) (string, error) {
 		argon2.Version, argon2Memory, argon2Time, argon2Threads, saltEncoded, hashEncoded), nil
 }
 
-// VerifyPasswordWithArgon2 verifica una password contro un hash Argon2
-func VerifyPasswordWithArgon2(password, encodedHash string) (bool, error) {
-	// Parsing dell'hash codificato
-	p, salt, hash, err := decodeHash(encodedHash)
-	if err != nil {
-		return false, err
-	}
-
-	// Hash della password fornita con gli stessi parametri
-	otherHash := argon2.IDKey([]byte(password), salt, p.iterations, p.memory, p.parallelism, p.keyLength)
-
-	// Verifica sicura contro timing attacks
-	if subtle.ConstantTimeCompare(hash, otherHash) == 1 {
-		return true, nil
-	}
-	return false, nil
-}
-
-// decodeHash decodifica un hash Argon2 dal formato stringa
+// Decodifica un hash Argon2 dal formato stringa
 func decodeHash(encodedHash string) (p *params, salt, hash []byte, err error) {
 	vals := strings.Split(encodedHash, "$")
 	if len(vals) != 6 {
@@ -110,4 +92,22 @@ func decodeHash(encodedHash string) (p *params, salt, hash []byte, err error) {
 	p.keyLength = uint32(len(hash))
 
 	return p, salt, hash, nil
+}
+
+// Verifica una password contro un hash Argon2
+func VerifyPassword(password, encodedHash string) (bool, error) {
+	// Parsing dell'hash codificato
+	p, salt, hash, err := decodeHash(encodedHash)
+	if err != nil {
+		return false, err
+	}
+
+	// Hash della password fornita con gli stessi parametri
+	otherHash := argon2.IDKey([]byte(password), salt, p.iterations, p.memory, p.parallelism, p.keyLength)
+
+	// Verifica sicura contro timing attacks
+	if subtle.ConstantTimeCompare(hash, otherHash) == 1 {
+		return true, nil
+	}
+	return false, nil
 }

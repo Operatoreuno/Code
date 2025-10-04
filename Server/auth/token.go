@@ -1,16 +1,15 @@
-package pkg
+package auth
 
 import (
 	"crypto/sha256"
 	"fmt"
-	"oniplu/auth"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// GenerateAccessToken genera un token di accesso JWT con durata limitata
-func GenerateToken(payload auth.TokenPayload, secret string, duration time.Duration) (string, error) {
+// Genera un token JWT con durata limitata
+func GenerateToken(payload TokenPayload, secret string, duration time.Duration) (string, error) {
 
 	now := time.Now()
 	claims := jwt.MapClaims{
@@ -25,7 +24,7 @@ func GenerateToken(payload auth.TokenPayload, secret string, duration time.Durat
 }
 
 // VerifyToken verifica e decodifica un token JWT utilizzando il segreto fornito
-func VerifyToken(tokenString, secret string) (*auth.TokenPayload, error) {
+func VerifyToken(tokenString, secret string) (*TokenPayload, error) {
 	claims := &jwt.RegisteredClaims{}
 
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (any, error) {
@@ -43,7 +42,7 @@ func VerifyToken(tokenString, secret string) (*auth.TokenPayload, error) {
 		return nil, fmt.Errorf("token non valido")
 	}
 
-	return &auth.TokenPayload{
+	return &TokenPayload{
 		EntityID: claims.Subject,
 		Jti:      claims.ID,
 	}, nil

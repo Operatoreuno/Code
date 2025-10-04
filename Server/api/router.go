@@ -5,13 +5,14 @@ import (
 	"oniplu/features/user"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 )
 
 // SetupAPIRoutes registra tutte le route API su un gruppo/router Gin passato
-func APIRoutes(router gin.IRouter, queries *db.Queries) {
+func APIRoutes(router gin.IRouter, queries *db.Queries, redisClient *redis.Client) {
 	// Gruppo principale: /user
 	userGroup := router.Group("/user")
-	user.UserRoutes(userGroup, queries)
+	user.UserRoutes(userGroup, queries, redisClient)
 
 	// adminGroup := router.Group("/admin")
 	// admin.SetupAdminRoutes(adminGroup, db)

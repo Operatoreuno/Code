@@ -24,7 +24,7 @@ func RedisPassword() string {
 func ConnectRedis() (*redis.Client, error) {
 	redisURL := RedisURL()
 	redisPassword := RedisPassword()
-	redisDB := 1
+	redisDB := 0
 
 	// Crea il client Redis
 	client := redis.NewClient(&redis.Options{

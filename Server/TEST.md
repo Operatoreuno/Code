@@ -6,11 +6,11 @@ Questo documento descrive tutti i test da eseguire su Postman per validare le ro
 
 ## Setup Postman
 
-**Base URL**: `http://localhost:8080/api`
+**Base URL**: `http://localhost:3000/api`
 
 ### Environment Variables
 ```
-base_url = http://localhost:8080/api
+base_url = http://localhost:3000/api
 ```
 
 ---

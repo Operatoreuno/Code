@@ -20,6 +20,13 @@ func main() {
 	}
 	defer config.CloseDatabase(database)
 
+	// Connessione a Redis
+	redisClient, err := config.ConnectRedis()
+	if err != nil {
+		log.Fatalf("Errore nella connessione a Redis: %v", err)
+	}
+	defer config.CloseRedis(redisClient)
+
 	// Crea istanza singleton delle queries
 	queries := db.New(database)
 
@@ -36,7 +43,7 @@ func main() {
 
 	// Prefisso API
 	apiGroup := router.Group("/api")
-	api.APIRoutes(apiGroup, queries)
+	api.APIRoutes(apiGroup, queries, redisClient)
 
 	// Avvia il server con graceful shutdown
 	config.StartServer(router)
